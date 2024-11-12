@@ -1,19 +1,27 @@
 import { test, expect } from '@playwright/test'
+import PomManager from '../pages/PomManager';
+
+let pm
+
+test.beforeEach(async ({page}) => {
+    pm = new PomManager(page)
+    await page.goto(pm.ChallengingDomPage.url)
+})
+
+test.afterEach(async ({page}) => {
+    await page.close()
+})
 
 test('Click on first button', async({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/challenging_dom');
-    await page.locator('a.button').nth(0).click()
+    await pm.ChallengingDomPage.button1.click()
 })
-
 
 test('Verify table header contents', async({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/challenging_dom');
-    await page.locator('tr').nth(0).isVisible()
-    await expect(page.locator('th').nth(0)).toHaveText('Lorem')
+    await pm.ChallengingDomPage.tableRow.nth(0).isVisible()
+    await expect(pm.ChallengingDomPage.tableHeader.nth(0)).toHaveText('Lorem')
 })
 
-test('Verify number of table rows', async({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/challenging_dom');
-    const rows = page.locator('tbody tr')
+test('Verify number of rows in table body', async({page}) => {
+    const rows = pm.ChallengingDomPage.tableBodyRow
     await expect(rows).toHaveCount(10)
 })
