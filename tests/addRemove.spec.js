@@ -1,78 +1,77 @@
 import { test, expect } from '@playwright/test'
+import PomManager from '../pages/PomManager'
 
-test('Navigate to Add/Remove Page Testing from Home Page', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/')
-    await page.getByRole('link', { name: 'A/B Testing'}).click()
-    await page.pause()
+let pm
+
+test.beforeEach(async ({page}) => {
+    pm = new PomManager(page)
+    await page.goto(pm.AddRemovePage.url)
+})
+
+test.afterEach(async ({page}) => {
+    await page.close()
 })
 
 test('Verify single element can be added', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/add_remove_elements/')
-    await page.getByRole('button', { name: 'Add Element' }).click()
-    await expect(page.getByRole('button', { name: 'Delete' })).toBeVisible()
+    
+    await pm.AddRemovePage.addElement.click()
+    await expect(pm.AddRemovePage.delElement).toBeVisible()
 })
 
 test('Verify single element can be removed', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/add_remove_elements/')
-    await page.getByRole('button', { name: 'Add Element' }).click()
-    await expect(page.getByRole('button', { name: 'Delete' })).toBeVisible()
-    await page.getByRole('button', { name: 'Delete'}).click()
-    await expect(page.getByRole('button', { name: 'Delete' })).not.toBeVisible()
+    await pm.AddRemovePage.addElement.click()
+    await expect(pm.AddRemovePage.delElement).toBeVisible()
+    await pm.AddRemovePage.delElement.click()
+    await expect(pm.AddRemovePage.delElement).not.toBeVisible()
 })
 
-test('Verify multiple elements can be added', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/add_remove_elements/')
-    
+test('Verify multiple elements can be added', async ({page}) => {    
     const index = 3
     for(let i = 0; i < index; i++) {
         console.log(i)
-        await page.getByRole('button', { name: 'Add Element' }).click()
+        await pm.AddRemovePage.addElement.click()
     }
 
-    await expect(page.locator('button.added-manually')).toHaveCount(index)
+    await expect(pm.AddRemovePage.delElement).toHaveCount(index)
 })
 
-test('Verify multiple elements can be removed', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/add_remove_elements/')
-    
+test('Verify multiple elements can be removed', async ({page}) => {    
     // Add elements by clicking button
     const elements = 5
     for(let i = 0; i < elements; i++) {
         console.log(i)
-        await page.getByRole('button', { name: 'Add Element' }).click()
+        await pm.AddRemovePage.addElement.click()
     }
     
     // Assert the correct number of buttons have been added
-    await expect(page.locator('button.added-manually')).toHaveCount(elements)
+    await expect(pm.AddRemovePage.delElement).toHaveCount(elements)
 
     // Remove elements by clicking left-most button
     for(let i = 0; i < elements; i++) {
         console.log(i)
-        await page.getByRole('button', { name: 'Delete'}).nth(0).click()
+        await pm.AddRemovePage.delElement.nth(0).click()
     }
 
     // Assert there are no Delete buttons remaining
-    await expect(page.locator('button.added-manually')).toHaveCount(0)
+    await expect(pm.AddRemovePage.delElement).toHaveCount(0)
 
 })
 
-test('Verify UI state on page reload', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/add_remove_elements/')
-    
+test('Verify UI state on page reload', async ({page}) => {    
     // Add elements by clicking button
     const elements = 3
     for(let i = 0; i < elements; i++) {
         console.log(i)
-        await page.getByRole('button', { name: 'Add Element' }).click()
+        await pm.AddRemovePage.addElement.click()
     }
     
     // Assert the correct number of buttons have been added
-    await expect(page.locator('button.added-manually')).toHaveCount(elements)
+    await expect(pm.AddRemovePage.delElement).toHaveCount(elements)
 
     // Reload the page
     await page.reload()
 
     // Assert there are no Delete buttons remaining
-    await expect(page.locator('button.added-manually')).toHaveCount(0)
+    await expect(pm.AddRemovePage.delElement).toHaveCount(0)
 
 })

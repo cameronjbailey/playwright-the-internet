@@ -1,16 +1,18 @@
 import { test, expect } from '@playwright/test'
+import PomManager from '../pages/PomManager'
 
-test('Navigate to A/B Testing from Home Page', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/')
-    const link = page.getByRole('link', { name: 'A/B Testing'})
-    console.log(link)
-    await link.click()
-    await page.pause()
+let pm
+
+test.beforeEach(async ({page}) => {
+    pm = new PomManager(page)
+})
+
+test.afterEach(async ({page}) => {
+    await page.close()
 })
 
 test('Assert A/B test page header text', async ({page}) => {
-    await page.goto('https://the-internet.herokuapp.com/')
-    await page.getByRole('link', { name: 'A/B Testing'}).click()
-    await expect(page.locator('h3')).toHaveText('A/B Test Control')
+    await page.goto(pm.AbTestingPage.url)
+    await expect(pm.AbTestingPage.header).toHaveText('A/B Test Control')
 })
 
